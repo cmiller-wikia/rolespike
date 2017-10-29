@@ -39,10 +39,10 @@ class RolesServiceSpec extends FreeSpec {
         "userId" -> "harold"
       ))(defaultState) should respondWithConformingJson(
         json"""{
-					"harold": [
-						 { "name": "discussions-helper", "scope": "wiki:831" }
-					]
-				}"""
+  "harold": [
+   { "name": "discussions-helper", "scope": "wiki:831" }
+  ]
+  }"""
       )
     }
 
@@ -53,8 +53,8 @@ class RolesServiceSpec extends FreeSpec {
         "scope" -> "global"
       ))(defaultState) should respondWithConformingJson(
         json"""{
-					"harold": []
-				}"""
+  "harold": []
+  }"""
       )
     }
 
@@ -69,15 +69,15 @@ class RolesServiceSpec extends FreeSpec {
         "scope" -> "wiki:432"
       ))(defaultState) should respondWithConformingJson(
         json"""{
-					"harold": [
-						 { "name": "discussions-helper", "scope": "wiki:831" }
-					],
-					"carol": [],
-					"bob": [
-						{ "name": "staff", "scope": "global" },
-						{ "name": "discussions-moderator", "scope": "wiki:831" }
-					]
-				}"""
+          "harold": [
+            { "name": "discussions-helper", "scope": "wiki:831" }
+          ],
+          "carol": [],
+          "bob": [
+            { "name": "staff", "scope": "global" },
+            { "name": "discussions-moderator", "scope": "wiki:831" }
+          ]
+        }"""
       )
     }
   }

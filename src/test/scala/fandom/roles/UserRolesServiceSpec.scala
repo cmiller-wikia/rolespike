@@ -38,25 +38,25 @@ class UserRolesServiceSpec extends FreeSpec {
       "should return all roles if no scope filter is provided" in {
         serve(get("/roles/users/bob"))(defaultState) should
           respondWithConformingJson(json"""[
-					  { "name": "staff", "scope": "global" },
-						{ "name": "discussions-moderator", "scope": "wiki:831" },
-					  { "name": "discussions-helper", "scope": "wiki:832" }
-					]""")
+            { "name": "staff", "scope": "global" },
+            { "name": "discussions-moderator", "scope": "wiki:831" },
+            { "name": "discussions-helper", "scope": "wiki:832" }
+          ]""")
       }
 
       "should filter by roles if scope filter is provided" in {
         serve(get("/roles/users/bob", "scope" -> "wiki:831"))(defaultState) should
           respondWithConformingJson(json"""[
-						{ "name": "discussions-moderator", "scope": "wiki:831" }
-					]""")
+            { "name": "discussions-moderator", "scope": "wiki:831" }
+          ]""")
       }
 
       "should filter by multiuple roles if scope filter is multiple" in {
         serve(get("/roles/users/bob", "scope" -> "wiki:831", "scope" -> "global"))(defaultState) should
           respondWithConformingJson(json"""[
-					  { "name": "staff", "scope": "global" },
-						{ "name": "discussions-moderator", "scope": "wiki:831" }
-					]""")
+            { "name": "staff", "scope": "global" },
+            { "name": "discussions-moderator", "scope": "wiki:831" }
+          ]""")
       }
     }
 
@@ -80,9 +80,9 @@ class UserRolesServiceSpec extends FreeSpec {
           should(respondWithStatus(Status.NoContent))
         (get("/roles/users/bob") >>= svc) should
           respondWithConformingJson(json"""[
-					{ "name": "staff", "scope": "global" },
-					{ "name": "discussions-helper", "scope": "wiki:832" }
-				]""")
+            { "name": "staff", "scope": "global" },
+            { "name": "discussions-helper", "scope": "wiki:832" }
+          ]""")
       }
 
       "should limit role removal by a multiple scopes" in {
@@ -95,8 +95,8 @@ class UserRolesServiceSpec extends FreeSpec {
 
         (get("/roles/users/bob") >>= svc) should
           respondWithConformingJson(json"""[
-					{ "name": "discussions-helper", "scope": "wiki:832" }
-				]""")
+            { "name": "discussions-helper", "scope": "wiki:832" }
+          ]""")
       }
     }
 
@@ -126,17 +126,17 @@ class UserRolesServiceSpec extends FreeSpec {
         serve(post(
           "/roles/users/harold",
           json"""{
-						"add": [
-						   { "name": "staff", "scope": "global" },
-							 { "name": "vstf", "scope": "global" }
-						]
-					}"""
+            "add": [
+              { "name": "staff", "scope": "global" },
+              { "name": "vstf", "scope": "global" }
+            ]
+          }"""
         ))(defaultState) should respondWithConformingJson(
           json"""[
-						{ "name": "discussions-helper", "scope": "wiki:831" },
-						{ "name": "staff", "scope": "global" },
-						{ "name": "vstf", "scope": "global" }
-					]"""
+            { "name": "discussions-helper", "scope": "wiki:831" },
+            { "name": "staff", "scope": "global" },
+            { "name": "vstf", "scope": "global" }
+          ]"""
         )
       }
 
@@ -144,14 +144,14 @@ class UserRolesServiceSpec extends FreeSpec {
         serve(post(
           "/roles/users/bob",
           json"""{
-						"add": [
-							{ "name": "vstf", "scope": "global" }
-						]
-					}"""
+            "add": [
+              { "name": "vstf", "scope": "global" }
+            ]
+          }"""
         ))(List.empty) should respondWithConformingJson(
           json"""[
-							{ "name": "vstf", "scope": "global" }
-						]"""
+            { "name": "vstf", "scope": "global" }
+          ]"""
         )
       }
 
@@ -159,10 +159,10 @@ class UserRolesServiceSpec extends FreeSpec {
         serve(post(
           "/roles/users/bob",
           json"""{
-						"remove": [
-							{ "name": "vstf", "scope": "global" }
-						]
-					}"""
+            "remove": [
+               { "name": "vstf", "scope": "global" }
+            ]
+          }"""
         ))(List.empty) should respondWithConformingJson(
           json"""[]"""
         )
@@ -172,10 +172,10 @@ class UserRolesServiceSpec extends FreeSpec {
         serve(post(
           "/roles/users/harold",
           json"""{
-						"remove": [
-							{ "name": "vstf", "scope": "global" }
-						]
-					}"""
+            "remove": [
+              { "name": "vstf", "scope": "global" }
+            ]
+          }"""
         ))(defaultState) should respondWithConformingJson(
           json"""[ { "name": "discussions-helper", "scope": "wiki:831" } ]"""
         )
@@ -185,19 +185,19 @@ class UserRolesServiceSpec extends FreeSpec {
         serve(post(
           "/roles/users/harold",
           json"""{
-						"add": [
-						   { "name": "staff", "scope": "global" },
-							 { "name": "vstf", "scope": "global" }
-						],
-						"remove": [
-						   { "name": "staff", "scope": "global" },
-							 { "name": "discussions-helper", "scope": "wiki:831" }
-						]
-					}"""
+            "add": [
+              { "name": "staff", "scope": "global" },
+              { "name": "vstf", "scope": "global" }
+            ],
+            "remove": [
+              { "name": "staff", "scope": "global" },
+              { "name": "discussions-helper", "scope": "wiki:831" }
+            ]
+          }"""
         ))(defaultState) should respondWithConformingJson(
           json"""[
-						{ "name": "vstf", "scope": "global" }
-					]"""
+            { "name": "vstf", "scope": "global" }
+          ]"""
         )
       }
     }

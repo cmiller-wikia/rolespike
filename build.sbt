@@ -3,8 +3,8 @@ lazy val root = (project in file("."))
   .settings(CommonSettings.console)
   .settings(Seq(
     organization := "fandom.com",
-    name := "capspike",
-    description := "Capabilities Spike API",
+    name := "rolespike",
+    description := "Polyglot Service Spike",
 		fork := true
   ))
   .settings(Seq(

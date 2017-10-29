@@ -18,7 +18,7 @@ trait WebOps {
 
   def liftTask[A](task: Task[A]): WebOp[A] = WL.liftT(task)
   def sendError[A](err: Task[Response]): WebOp[A] = WM.raiseErrorM(err)
-  def askRequest: WebOp[Request] = WM.ask
+  val askRequest: WebOp[Request] = WM.ask
   def withRequest[A](f: Request => A): WebOp[A] = askRequest.map(f)
 
   def run(svc: WebService)(req: Request): Task[Response] =
@@ -40,12 +40,12 @@ trait BodySupport extends WebOps {
 trait FormSupport extends WebOps {
   def multiParam[A](
     name: String,
-    f: (String => A) = Predef.identity[String](_)
+    mapWith: (String => A) = Predef.identity[String](_)
   ): WebOp[List[A]] =
     withRequest(
       _.multiParams
         .get(name)
-        .map(_.map(f).toList)
+        .map(_.map(mapWith).toList)
         .getOrElse(List.empty)
     )
 }

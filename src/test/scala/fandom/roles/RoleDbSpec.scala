@@ -8,12 +8,7 @@ import org.scalatest._
 import Matchers._
 
 trait RoleDbSpec { this: FreeSpec =>
-  val defaultState: List[Grant] = grants(
-    ("bob", "staff", "global"),
-    ("bob", "discussions-moderator", "wiki:831"),
-    ("bob", "discussions-helper", "wiki:832"),
-    ("harold", "discussions-helper", "wiki:831")
-  )
+  val defaultState: List[Grant] = fixtures.defaultGrants
 
   def roleDb[F[_]: Monad](E: RoleDb[F], T: List[Grant] => (F ~> Id)) = {
     "when looking up roles for a user" - {
@@ -225,12 +220,6 @@ trait RoleDbSpec { this: FreeSpec =>
       }
     }
   }
-  def grants(roles: (String, String, String)*): List[Grant] =
-    roles
-      .toList
-      .map {
-        case (name, role, scope) => Grant(UserId(name), Role(role, Scope(scope)))
-      }
 }
 
 class MemoryRoleDbSpec extends FreeSpec with RoleDbSpec {

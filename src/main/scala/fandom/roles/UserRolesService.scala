@@ -5,6 +5,8 @@ import fs2.interop.cats._
 import cats._
 import cats.instances.unit._
 import cats.syntax.applicative._
+import cats.syntax.functor._
+import cats.syntax.flatMap._
 import org.http4s._
 import org.http4s.dsl._
 import org.http4s.circe._
@@ -44,14 +46,22 @@ trait UserRolesService[F[_]] {
 
   def updateRolesForUser(userId: UserId): WebService =
     for {
-      req <- askRequest
       patch <- bodyAs(jsonOf[Patch])
       _ <- validatePatch(patch)
-      _ <- T(DB.addRolesForUser(userId, patch.add))
-      _ <- T(DB.deleteRolesForUser(userId, patch.remove))
-      updatedRoles <- T(DB.findRolesForUser(userId))
+      updatedRoles <- T(updateRolesInDb(userId, patch.add, patch.remove))
       result <- liftTask(Ok(updatedRoles.asJson))
     } yield (result)
+
+  def updateRolesInDb(
+    userId: UserId,
+    add: List[Role],
+    remove: List[Role]
+  ): F[List[Role]] =
+    for {
+      _ <- DB.addRolesForUser(userId, add)
+      _ <- DB.deleteRolesForUser(userId, remove)
+      updatedRoles <- DB.findRolesForUser(userId)
+    } yield (updatedRoles)
 
   def validatePatch(patch: Patch): WebOp[Unit] =
     if (patch.add.isEmpty && patch.remove.isEmpty)

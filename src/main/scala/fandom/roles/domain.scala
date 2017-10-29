@@ -18,8 +18,14 @@ object codecs {
   implicit val encodeScope: Encoder[Scope] = wrappedStringEncoder[Scope](_.value)
   implicit val decodeScope: Decoder[Scope] = wrappedStringDecoder(Scope(_))
 
+  implicit val encodeUserId: Encoder[UserId] = wrappedStringEncoder[UserId](_.value)
+  implicit val decodeUserId: Decoder[UserId] = wrappedStringDecoder(UserId(_))
+
   implicit val encodeRole: Encoder[Role] = deriveEncoder[Role]
   implicit val decodeRole: Decoder[Role] = deriveDecoder[Role]
+
+  implicit val encodeGrant: Encoder[Grant] = deriveEncoder[Grant]
+  implicit val decodeGrant: Decoder[Grant] = deriveDecoder[Grant]
 
   implicit val encodePatch: Encoder[Patch] = deriveEncoder[Patch]
 

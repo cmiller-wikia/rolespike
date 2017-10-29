@@ -14,13 +14,19 @@ trait TransientRolesApp {
 
   val xa = Transactor.fromDriverManager[Task]("org.h2.Driver", "jdbc:h2:mem:db", "", "")
 
-  val userRolesService =
+  def userRolesService =
     UserRolesService.service(
       DoobieRoleDb,
       roleDbTransformer
     )
 
-  val roleDbTransformer = new (ConnectionIO ~> WebOp) {
+  def rolesService =
+    RolesService.service(
+      DoobieRoleDb,
+      roleDbTransformer
+    )
+
+  def roleDbTransformer = new (ConnectionIO ~> WebOp) {
     def apply[A](fa: ConnectionIO[A]): WebOp[A] = liftTask(fa.transact(xa))
   }
 
@@ -32,15 +38,15 @@ trait TransientRolesApp {
       conn => Task.delay { conn.close }
     )
 
-  val initDb: Task[Connection] =
+  def initDb: Task[Connection] =
     for {
       conn <- openRawConnection
       _ <- createTables
     } yield (conn)
 
-  val openRawConnection = xa.connect(xa.kernel)
+  def openRawConnection = xa.connect(xa.kernel)
 
-  val createTables = ddl.grants.createTable.run.transact(xa)
+  def createTables = ddl.grants.createTable.run.transact(xa)
 }
 
 object RolesApp extends StreamApp with TransientRolesApp {
@@ -49,6 +55,7 @@ object RolesApp extends StreamApp with TransientRolesApp {
       BlazeBuilder
       .bindHttp(8080, "0.0.0.0")
       .mountService(userRolesService, "/")
+      .mountService(rolesService, "/")
       .serve
     )
 }

@@ -7,11 +7,20 @@ import cats.syntax.flatMap._
 import doobie.imports._
 
 object DoobieRoleDb extends RoleDb[ConnectionIO] {
-  def findRolesForUser(userId: UserId, scopes: List[Scope]): ConnectionIO[List[Role]] =
-    rolesQuery(userId, scopes)
-      .query[(String, String)]
+  def findRolesForUser(userId: UserId, scopesFilter: List[Scope]): ConnectionIO[List[Role]] =
+    for {
+      grants <- findGrantsForUsers(NonEmptyList.of(userId), scopesFilter)
+    } yield (grants.map(_.role))
+
+  def findGrantsForUsers(
+    userIds: NonEmptyList[UserId],
+    scopesFilter: List[Scope]
+  ): ConnectionIO[List[Grant]] =
+    rolesQuery(userIds, scopesFilter)
+      .query[(String, String, String)]
       .map {
-        case (roleName, scopeName) => Role(roleName, Scope(scopeName))
+        case (userId, roleName, scopeName) =>
+          Grant(UserId(userId), Role(roleName, Scope(scopeName)))
       }
       .list
 
@@ -29,12 +38,13 @@ object DoobieRoleDb extends RoleDb[ConnectionIO] {
       role => (userId.value, role.name, role.scope.value)
     }).map(_ => ())
 
-  def rolesQuery(userId: UserId, scopes: List[Scope]) =
+  def rolesQuery(userIds: NonEmptyList[UserId], scopes: List[Scope]) =
     sql"""
-      SELECT role_name, scope_name
+      SELECT user_id, role_name, scope_name
       FROM grants
-      WHERE user_id = ${userId.value}
-      """ ++ optionalScopesFilter(scopes)
+      WHERE """ ++
+      Fragments.in(fr"user_id", userIds) ++
+      optionalScopesFilter(scopes)
 
   def deleteByUserScopeQuery(userId: UserId, scopes: List[Scope]) =
     sql"""

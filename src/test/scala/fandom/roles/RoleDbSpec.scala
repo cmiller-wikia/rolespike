@@ -2,6 +2,7 @@ package fandom
 package roles
 
 import cats._
+import cats.data._
 import cats.syntax.flatMap._
 import cats.syntax.functor._
 import org.scalatest._
@@ -66,6 +67,78 @@ trait RoleDbSpec { this: FreeSpec =>
             Role("staff", Scope("global")),
             Role("discussions-moderator", Scope("wiki:831")),
             Role("discussions-helper", Scope("wiki:832"))
+          )
+      }
+    }
+
+    "when looking up roles for multiple users" - {
+      def userIds(first: String, rest: String*) =
+        NonEmptyList.of(first, rest: _*).map(UserId(_))
+
+      def scopes(ss: String*) = ss.toList.map(Scope(_))
+
+      "handles case when no users exist" in {
+        T(defaultState)(
+          E.findGrantsForUsers(userIds("carol", "betty"))
+        ) shouldBe empty
+      }
+
+      "handles case where users exist but scopes don't" in {
+        T(defaultState)(
+          E.findGrantsForUsers(
+            userIds("bob", "harold"),
+            scopes("wiki:844", "wiki:855")
+          )
+        ) shouldBe empty
+      }
+
+      "handles single user no scope" in {
+        T(defaultState)(
+          E.findGrantsForUsers(
+            userIds("bob")
+          )
+        ).toList should contain only (
+            Grant(UserId("bob"), Role("staff", Scope("global"))),
+            Grant(UserId("bob"), Role("discussions-moderator", Scope("wiki:831"))),
+            Grant(UserId("bob"), Role("discussions-helper", Scope("wiki:832")))
+          )
+      }
+
+      "handles multi user no scope" in {
+        T(defaultState)(
+          E.findGrantsForUsers(
+            userIds("bob", "harold")
+          )
+        ).toList should contain only (
+            Grant(UserId("bob"), Role("staff", Scope("global"))),
+            Grant(UserId("bob"), Role("discussions-moderator", Scope("wiki:831"))),
+            Grant(UserId("bob"), Role("discussions-helper", Scope("wiki:832"))),
+            Grant(UserId("harold"), Role("discussions-helper", Scope("wiki:831")))
+          )
+      }
+
+      "handles multi user with scope" in {
+        T(defaultState)(
+          E.findGrantsForUsers(
+            userIds("bob", "harold"),
+            scopes("wiki:831", "wiki:832")
+          )
+        ).toList should contain only (
+            Grant(UserId("bob"), Role("discussions-moderator", Scope("wiki:831"))),
+            Grant(UserId("bob"), Role("discussions-helper", Scope("wiki:832"))),
+            Grant(UserId("harold"), Role("discussions-helper", Scope("wiki:831")))
+          )
+      }
+
+      "handles mix of existing and non-existent things" in {
+        T(defaultState)(
+          E.findGrantsForUsers(
+            userIds("bob", "carol", "harold"),
+            scopes("wiki:842", "wiki:831")
+          )
+        ).toList should contain only (
+            Grant(UserId("bob"), Role("discussions-moderator", Scope("wiki:831"))),
+            Grant(UserId("harold"), Role("discussions-helper", Scope("wiki:831")))
           )
       }
     }

@@ -17,36 +17,41 @@ trait UserRolesService[F[_]] {
   val T: F ~> WebOp
   implicit val F: Monad[F]
 
+	//format: OFF
   val service = HttpService {
-    case req @ GET -> Root / "roles" / "users" / userId =>
+    case req @    GET -> Root / "roles" / "users" / userId =>
       run(findRolesForUser(UserId(userId)))(req)
     case req @ DELETE -> Root / "roles" / "users" / userId =>
       run(deleteRolesForUser(UserId(userId)))(req)
-    case req @ POST -> Root / "roles" / "users" / userId =>
+    case req @   POST -> Root / "roles" / "users" / userId =>
       run(updateRolesForUser(UserId(userId)))(req)
   }
+  //format: ON
 
-  def findRolesForUser(userId: UserId): WebService = for {
-    scopes <- multiParam("scope", Scope(_))
-    roles <- T(DB.findRolesForUser(userId, scopes))
-    result <- liftTask(Ok(roles.asJson))
-  } yield (result)
+  def findRolesForUser(userId: UserId): WebService =
+    for {
+      scopes <- multiParam("scope", Scope(_))
+      roles <- T(DB.findRolesForUser(userId, scopes))
+      result <- liftTask(Ok(roles.asJson))
+    } yield (result)
 
-  def deleteRolesForUser(userId: UserId): WebService = for {
-    scopes <- multiParam("scope", Scope(_))
-    roles <- T(DB.bulkDeleteRolesForUser(userId, scopes))
-    result <- liftTask(NoContent())
-  } yield (result)
+  def deleteRolesForUser(userId: UserId): WebService =
+    for {
+      scopes <- multiParam("scope", Scope(_))
+      roles <- T(DB.bulkDeleteRolesForUser(userId, scopes))
+      result <- liftTask(NoContent())
+    } yield (result)
 
-  def updateRolesForUser(userId: UserId): WebService = for {
-    req <- askRequest
-    patch <- bodyAs(jsonOf[Patch])
-    _ <- validatePatch(patch)
-    _ <- T(DB.addRolesForUser(userId, patch.add))
-    _ <- T(DB.deleteRolesForUser(userId, patch.remove))
-    updatedRoles <- T(DB.findRolesForUser(userId))
-    result <- liftTask(Ok(updatedRoles.asJson))
-  } yield (result)
+  def updateRolesForUser(userId: UserId): WebService =
+    for {
+      req <- askRequest
+      patch <- bodyAs(jsonOf[Patch])
+      _ <- validatePatch(patch)
+      _ <- T(DB.addRolesForUser(userId, patch.add))
+      _ <- T(DB.deleteRolesForUser(userId, patch.remove))
+      updatedRoles <- T(DB.findRolesForUser(userId))
+      result <- liftTask(Ok(updatedRoles.asJson))
+    } yield (result)
 
   def validatePatch(patch: Patch): WebOp[Unit] =
     if (patch.add.isEmpty && patch.remove.isEmpty)

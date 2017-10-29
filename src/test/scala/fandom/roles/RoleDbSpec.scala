@@ -237,7 +237,7 @@ class MemoryRoleDbSpec extends FreeSpec with RoleDbSpec {
   "The memory role db" - {
     behave like roleDb(
       MemoryRoleDb,
-      transformers.stateToId
+      apitests.stateToId
     )
   }
 }

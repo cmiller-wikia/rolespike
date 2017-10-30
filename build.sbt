@@ -24,11 +24,11 @@ lazy val root = (project in file("."))
         "org.typelevel" %% "cats-effect" % "0.3",
         "org.tpolecat" %% "doobie-core-cats" % "0.4.4",
         "com.h2database" % "h2" % "1.4.195",
-				"mysql" % "mysql-connector-java" % "6.0.6"
+        "mysql" % "mysql-connector-java" % "6.0.6"
       ) ++
       CommonDeps.scalatest,
-		inConfig(AllTests)(Defaults.testTasks),
-		testOptions in Test := Seq(Tests.Filter(standaloneTestsFilter)),
-		testOptions in AllTests := Seq(Tests.Filter(allTestsFilter)),
+    inConfig(AllTests)(Defaults.testTasks),
+    testOptions in Test := Seq(Tests.Filter(standaloneTestsFilter)),
+    testOptions in AllTests := Seq(Tests.Filter(allTestsFilter)),
     addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
   )

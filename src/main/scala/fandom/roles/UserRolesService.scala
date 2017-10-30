@@ -19,7 +19,7 @@ trait UserRolesService[F[_]] {
   val T: F ~> WebOp
   implicit val F: Monad[F]
 
-	//format: OFF
+  //format: OFF
   val service = HttpService {
     case req @    GET -> Root / "roles" / "users" / userId =>
       run(findRolesForUser(UserId(userId)))(req)

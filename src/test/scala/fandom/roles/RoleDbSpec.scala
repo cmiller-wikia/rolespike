@@ -318,3 +318,20 @@ class H2DoobieRoleDbSpec extends FreeSpec with RoleDbSpec {
     )
   }
 }
+
+class MySqlRoleDbSpec extends FreeSpec with RoleDbSpec {
+  import cats.syntax.flatMap._
+  import doobie.imports._
+
+  def setup(initialState: List[Grant]): ConnectionIO[Int] =
+    ddl.grants.dropTable.run >>
+      ddl.grants.createTable.run >>
+      ddl.grants.insertFixtures(initialState)
+
+  "The MySql role db" - {
+    behave like roleDb(
+      DoobieRoleDb,
+      is => doobiemysqltest.runInMysqlAfter(setup(is))
+    )
+  }
+}

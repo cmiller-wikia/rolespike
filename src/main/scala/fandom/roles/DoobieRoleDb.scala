@@ -48,24 +48,23 @@ object DoobieRoleDb extends RoleDb[ConnectionIO] {
 
   def deleteByUserScopeQuery(userId: UserId, scopes: List[Scope]) =
     sql"""
-		  DELETE FROM grants
-			WHERE user_id = ${userId.value}
-			""" ++ optionalScopesFilter(scopes)
+      DELETE FROM grants
+      WHERE user_id = ${userId.value}
+      """ ++ optionalScopesFilter(scopes)
 
   val grantDeleter =
     Update[(String, String, String)](
       """DELETE FROM grants
-			   WHERE user_id = ?
-			     AND role_name = ?
-				   AND scope_name = ?"""
+         WHERE user_id = ?
+           AND role_name = ?
+           AND scope_name = ?"""
     )
 
   val grantInserter =
     Update[(String, String, String)](
-      """
-			INSERT INTO grants(
-				user_id, role_name, scope_name
-			) VALUES ( ?, ?, ?)"""
+      """INSERT INTO grants(
+           user_id, role_name, scope_name
+         ) VALUES ( ?, ?, ?)"""
     )
 
   def optionalScopesFilter(scopes: List[Scope]) =

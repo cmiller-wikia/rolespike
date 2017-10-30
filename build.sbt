@@ -1,6 +1,6 @@
 
 lazy val AllTests = config("alltests") extend(Test)
-def standaloneTestsFilter(name: String): Boolean = { Predef.println(name); !(name contains "MySql") }
+def standaloneTestsFilter(name: String): Boolean = !(name contains "MySql")
 def allTestsFilter(name: String): Boolean = true
 
 lazy val root = (project in file("."))

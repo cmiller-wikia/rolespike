@@ -17,7 +17,8 @@ defaults:
 
 ```MYSQL_CONNECTION_URI=jdbc:mysql://localhost:3306/roletestdb?useSSL=false
 MYSQL_USERNAME=root
-MYSQL_PASSWORD=secret```
+MYSQL_PASSWORD=secret
+```
 
 ## Notes
 

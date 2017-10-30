@@ -15,7 +15,8 @@ Currently only runs on an in-memory database.
 The last one will run the MySQL tests as well. It looks for connection details in environment variables, with the following very insecure
 defaults:
 
-```MYSQL_CONNECTION_URI=jdbc:mysql://localhost:3306/roletestdb?useSSL=false
+```
+MYSQL_CONNECTION_URI=jdbc:mysql://localhost:3306/roletestdb?useSSL=false
 MYSQL_USERNAME=root
 MYSQL_PASSWORD=secret
 ```

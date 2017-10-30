@@ -22,7 +22,8 @@ class ProgramTSpec extends FunSuite with Matchers with Discipline {
       for {
         o ← AO.arbitrary
         ea ← AEA.arbitrary
-      } yield (ProgramT(i ⇒ F.pure((o, ea)))))
+      } yield (ProgramT(i ⇒ F.pure((o, ea))))
+    )
 
   implicit def eqTestProgram[A](implicit A: Arbitrary[Int], E: Eq[Eval[(String, String \/ A)]]): Eq[TestProgram[A]] =
     Eq.by[TestProgram[A], Int ⇒ Eval[(String, String \/ A)]] { program ⇒ i ⇒ program.run(i) }

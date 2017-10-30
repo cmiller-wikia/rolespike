@@ -17,12 +17,14 @@ trait TransientRolesApp {
   def userRolesService =
     UserRolesService.service(
       DoobieRoleDb,
-      roleDbTransformer)
+      roleDbTransformer
+    )
 
   def rolesService =
     RolesService.service(
       DoobieRoleDb,
-      roleDbTransformer)
+      roleDbTransformer
+    )
 
   def roleDbTransformer = new (ConnectionIO ~> WebOp) {
     def apply[A](fa: ConnectionIO[A]): WebOp[A] = liftTask(fa.transact(xa))
@@ -33,7 +35,8 @@ trait TransientRolesApp {
   def keepAliveMemoryDb(app: Stream[Task, Nothing]): Stream[Task, Nothing] =
     Stream.bracket(initDb)(
       _ ⇒ app,
-      conn ⇒ Task.delay { conn.close })
+      conn ⇒ Task.delay { conn.close }
+    )
 
   def initDb: Task[Connection] =
     for {
@@ -53,5 +56,6 @@ object RolesApp extends StreamApp with TransientRolesApp {
         .bindHttp(8080, "0.0.0.0")
         .mountService(userRolesService, "/")
         .mountService(rolesService, "/")
-        .serve)
+        .serve
+    )
 }

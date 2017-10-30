@@ -14,7 +14,8 @@ object MemoryRoleDb extends RoleDb[State[List[Grant], ?]] {
 
   def findGrantsForUsers(
     users: NonEmptyList[UserId],
-    scopesFilter: List[Scope]): S[List[Grant]] =
+    scopesFilter: List[Scope]
+  ): S[List[Grant]] =
     State.get[List[Grant]].map { s ⇒
       s.filter(role ⇒ users.toList.contains(role.userId))
         .filter(role ⇒ scopeMatchesOrNotFiltered(scopesFilter)(role))

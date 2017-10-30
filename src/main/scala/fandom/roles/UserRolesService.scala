@@ -55,7 +55,8 @@ trait UserRolesService[F[_]] {
   def updateRolesInDb(
     userId: UserId,
     add: List[Role],
-    remove: List[Role]): F[List[Role]] =
+    remove: List[Role]
+  ): F[List[Role]] =
     for {
       _ ← DB.addRolesForUser(userId, add)
       _ ← DB.deleteRolesForUser(userId, remove)
@@ -66,7 +67,9 @@ trait UserRolesService[F[_]] {
     if (patch.add.isEmpty && patch.remove.isEmpty)
       sendError(
         UnprocessableEntity(
-          "Patch must contain at least one role to add or remove"))
+          "Patch must contain at least one role to add or remove"
+        )
+      )
     else
       ().pure[WebOp]
 }

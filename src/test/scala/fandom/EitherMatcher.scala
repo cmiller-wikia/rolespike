@@ -11,11 +11,14 @@ trait EitherMatchers {
       err ⇒ MatchResult(
         false,
         err,
-        "Unreachable message"),
+        "Unreachable message"
+      ),
       succ ⇒ MatchResult(
         true,
         "Unreachable message",
-        "Validation succeeded"))
+        "Validation succeeded"
+      )
+    )
 
   }
 

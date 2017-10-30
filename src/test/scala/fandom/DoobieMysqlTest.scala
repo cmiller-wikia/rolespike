@@ -25,7 +25,8 @@ trait DoobieMySQLOps {
       "com.mysql.cj.jdbc.Driver",
       connectionUri,
       username,
-      password)
+      password
+    )
 
   def connectionIOToTaskWithInitializer(init: ConnectionIO[_]): (ConnectionIO ~> Task) =
     new (ConnectionIO ~> Task) {

@@ -54,10 +54,13 @@ trait RolesService[F[_]] {
     grants.groupBy(_.userId.value).mapValues(_.map(_.role))
 
   def ensureAllUsersPresent(
-    users: List[UserId]): Map[String, List[Role]] =
+    users: List[UserId]
+  ): Map[String, List[Role]] =
     users.foldLeft(
-      Map.empty[String, List[Role]])(
-        (roles, uid) ⇒ roles + (uid.value -> List.empty))
+      Map.empty[String, List[Role]]
+    )(
+        (roles, uid) ⇒ roles + (uid.value -> List.empty)
+      )
 }
 
 object RolesService {

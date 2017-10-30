@@ -53,11 +53,13 @@ trait HttpMatchers {
       Kleisli(requestHandled) andThen
       hasStatus(Status.Ok) andThen
       returns[Json] andThen
-      jsonConformsTo(expected)).apply)
+      jsonConformsTo(expected)
+    ).apply)
 
   def respondWithStatus(status: Status): Matcher[Task[MaybeResponse]] =
     validatesAgainst((
-      (Kleisli(requestHandled) andThen hasStatus(status)).apply))
+      (Kleisli(requestHandled) andThen hasStatus(status)).apply
+    ))
 }
 
 object HttpMatchers extends HttpMatchers

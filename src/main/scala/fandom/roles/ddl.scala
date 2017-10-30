@@ -23,7 +23,8 @@ trait DdlOps {
       DoobieRoleDb.grantInserter.updateMany(
         fixtures.map {
           (grant: Grant) ⇒ (grant.userId.value, grant.role.name, grant.role.scope.value)
-        })
+        }
+      )
   }
 }
 

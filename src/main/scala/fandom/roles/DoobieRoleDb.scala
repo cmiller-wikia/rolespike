@@ -14,7 +14,8 @@ object DoobieRoleDb extends RoleDb[ConnectionIO] {
 
   def findGrantsForUsers(
     userIds: NonEmptyList[UserId],
-    scopesFilter: List[Scope]): ConnectionIO[List[Grant]] =
+    scopesFilter: List[Scope]
+  ): ConnectionIO[List[Grant]] =
     rolesQuery(userIds, scopesFilter)
       .query[(String, String, String)]
       .map {
@@ -56,17 +57,20 @@ object DoobieRoleDb extends RoleDb[ConnectionIO] {
       """DELETE FROM grants
          WHERE user_id = ?
            AND role_name = ?
-           AND scope_name = ?""")
+           AND scope_name = ?"""
+    )
 
   val grantInserter =
     Update[(String, String, String)](
       """INSERT INTO grants(
            user_id, role_name, scope_name
-         ) VALUES ( ?, ?, ?)""")
+         ) VALUES ( ?, ?, ?)"""
+    )
 
   def optionalScopesFilter(scopes: List[Scope]) =
     NonEmptyList.fromList(scopes.map(_.value))
       .map(
-        scopeNames ⇒ fr"AND" ++ Fragments.in(fr"scope_name", scopeNames))
+        scopeNames ⇒ fr"AND" ++ Fragments.in(fr"scope_name", scopeNames)
+      )
       .getOrElse(Fragment.empty)
 }

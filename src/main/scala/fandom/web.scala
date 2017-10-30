@@ -32,19 +32,22 @@ trait BodySupport extends WebOps {
       decodeResult ← liftTask(request.attemptAs[A].value)
       decoded ← decodeResult.fold(
         err ⇒ sendError(err.toHttpResponse(request.httpVersion)),
-        succ ⇒ succ.pure[WebOp])
+        succ ⇒ succ.pure[WebOp]
+      )
     } yield (decoded)
 }
 
 trait FormSupport extends WebOps {
   def multiParam[A](
     name: String,
-    mapWith: (String ⇒ A) = Predef.identity[String](_)): WebOp[List[A]] =
+    mapWith: (String ⇒ A) = Predef.identity[String](_)
+  ): WebOp[List[A]] =
     withRequest(
       _.multiParams
         .get(name)
         .map(_.map(mapWith).toList)
-        .getOrElse(List.empty))
+        .getOrElse(List.empty)
+    )
 }
 
 object web extends WebOps with FormSupport with BodySupport

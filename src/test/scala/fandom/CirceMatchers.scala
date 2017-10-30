@@ -41,7 +41,8 @@ trait CirceMatchers {
               .foldLeft(List.empty[String])(
                 (errs, item) ⇒ errs ++ (item match {
                   case (idx, (ll, rr)) ⇒ _findDifferences(path + "[" + idx + "]/", ll, rr)
-                }))
+                })
+              )
           }).getOrElse(typeError)
 
       def compareObject(l: JsonObject): List[String] =
@@ -56,7 +57,8 @@ trait CirceMatchers {
         compareScalar(_.asNumber),
         compareScalar(_.asString),
         compareArray,
-        compareObject)
+        compareObject
+      )
     }
 
     _findDifferences("", api, candidate) match {
@@ -67,7 +69,8 @@ trait CirceMatchers {
 
   def validJson(expected: String): ValidatedNel[String, Json] = parse(expected).fold(
     _.message.invalidNel,
-    _.valid)
+    _.valid
+  )
 
   def beJson = ValidationMatchers.validateWith(validJson)
 

@@ -16,12 +16,9 @@ lazy val root = (project in file("."))
   .settings(
     libraryDependencies ++=
       CommonDeps.http4s ++
-      CommonDeps.http4s_client ++
       CommonDeps.cats ++
-      CommonDeps.logging ++
       CommonDeps.circe ++
       Seq(
-        "org.typelevel" %% "cats-effect" % "0.3",
         "org.tpolecat" %% "doobie-core-cats" % "0.4.4",
         "com.h2database" % "h2" % "1.4.195",
         "mysql" % "mysql-connector-java" % "6.0.6"

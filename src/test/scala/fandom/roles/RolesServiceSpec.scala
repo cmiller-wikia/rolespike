@@ -28,9 +28,9 @@ class RolesServiceSpec extends FreeSpec {
     req >>= service(fixtures)
 
   def bulkQuery(makeRequest: (String, (String, String)*) => Task[Request]): Unit = {
-    "Should return nothing if no users are queried" in {
+    "Should return an error if no users are queried" in {
       serve(makeRequest("/roles", "scope" -> "wiki:831"))(defaultState) should
-        respondWithConformingJson(json"""{}""")
+        respondWithStatus(Status.BadRequest)
     }
 
     "Should return all roles if a user is queried with no scope filter" in {
@@ -39,10 +39,10 @@ class RolesServiceSpec extends FreeSpec {
         "userId" -> "harold"
       ))(defaultState) should respondWithConformingJson(
         json"""{
-  "harold": [
-   { "name": "discussions-helper", "scope": "wiki:831" }
-  ]
-  }"""
+         "harold": [
+           { "name": "discussions-helper", "scope": "wiki:831" }
+         ]
+        }"""
       )
     }
 
@@ -53,8 +53,8 @@ class RolesServiceSpec extends FreeSpec {
         "scope" -> "global"
       ))(defaultState) should respondWithConformingJson(
         json"""{
-  "harold": []
-  }"""
+          "harold": []
+        }"""
       )
     }
 

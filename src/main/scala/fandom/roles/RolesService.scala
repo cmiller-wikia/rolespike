@@ -4,7 +4,6 @@ package roles
 import cats._
 import cats.data._
 import cats.instances.unit._
-import cats.syntax.applicative._
 import org.http4s._
 import org.http4s.dsl._
 import org.http4s.circe._
@@ -46,7 +45,7 @@ trait RolesService[F[_]] {
     for {
       grants <- NonEmptyList.fromList(userIds)
         .map(ids => T(DB.findGrantsForUsers(ids, scopes)))
-        .getOrElse(List.empty.pure[WebOp])
+        .getOrElse(sendError(BadRequest("At least one userId must be specified")))
       groupedRoles = ensureAllUsersPresent(userIds) ++ groupRoles(grants)
       result <- liftTask(Ok(groupedRoles.asJson))
     } yield result

@@ -6,11 +6,11 @@ Currently only runs on an in-memory database.
 
 ## All the instructions you need
 
-```sbt test```
+```sbt rolesvc/test```
 
-```sbt run```
+```sbt rolesvc/run```
 
-```sbt alltests:test```
+```sbt rolesvc/alltests:test```
 
 The last one will run the MySQL tests as well. It looks for connection details in environment variables, with the following very insecure
 defaults:
@@ -21,6 +21,9 @@ MYSQL_USERNAME=root
 MYSQL_PASSWORD=secret
 ```
 
-## Notes
+## Organisation
 
-Application code is in 'fandom.roles'. Non-service-specific supporting code is in the 'fandom' package.
+```
+/base-libs          -- generic service code that is not fandom-specific
+/fandom-integration -- integration code for fandom services infrastructure
+/role-service       -- an example service implementation

@@ -38,14 +38,9 @@ lazy val base = (project in file("base-libs"))
 lazy val rolesvc = (project in file("role-service"))
   .configs(AllTests)
   .settings(DefaultSettings)
-  .settings(Seq(
-    name := "toy role service"
-  ))
   .settings(
-    libraryDependencies ++= Seq(
-      "org.tpolecat" %% "doobie-core-cats" % "0.4.4",
-      "com.h2database" % "h2" % "1.4.195",
-      "mysql" % "mysql-connector-java" % "6.0.6"
+    Seq(
+      name := "toy role service"
     ),
     inConfig(AllTests)(Defaults.testTasks),
     testOptions in Test := Seq(Tests.Filter(standaloneTestsFilter)),

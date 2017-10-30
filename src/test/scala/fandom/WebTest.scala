@@ -10,21 +10,17 @@ trait WebTestOps {
     Request(
       uri = Uri(
         path = path,
-        query = Query.fromPairs(params: _*)
-      )
-    ).pure[Task]
+        query = Query.fromPairs(params: _*))).pure[Task]
 
   def delete(path: String, params: (String, String)*): Task[Request] =
     Request(
       method = Method.DELETE,
-      uri = Uri(path = path, query = Query.fromPairs(params: _*))
-    ).pure[Task]
+      uri = Uri(path = path, query = Query.fromPairs(params: _*))).pure[Task]
 
   def post[A: EntityEncoder](path: String, body: A): Task[Request] =
     Request(
       method = Method.POST,
-      uri = Uri(path = path)
-    ).withBody(body)
+      uri = Uri(path = path)).withBody(body)
 }
 
 object webtests extends WebTestOps

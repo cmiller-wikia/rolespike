@@ -32,44 +32,41 @@ trait UserRolesService[F[_]] {
 
   def findRolesForUser(userId: UserId): WebService =
     for {
-      scopes <- multiParam("scope", Scope(_))
-      roles <- T(DB.findRolesForUser(userId, scopes))
-      result <- liftTask(Ok(roles.asJson))
+      scopes ← multiParam("scope", Scope(_))
+      roles ← T(DB.findRolesForUser(userId, scopes))
+      result ← liftTask(Ok(roles.asJson))
     } yield (result)
 
   def deleteRolesForUser(userId: UserId): WebService =
     for {
-      scopes <- multiParam("scope", Scope(_))
-      roles <- T(DB.bulkDeleteRolesForUser(userId, scopes))
-      result <- liftTask(NoContent())
+      scopes ← multiParam("scope", Scope(_))
+      roles ← T(DB.bulkDeleteRolesForUser(userId, scopes))
+      result ← liftTask(NoContent())
     } yield (result)
 
   def updateRolesForUser(userId: UserId): WebService =
     for {
-      patch <- bodyAs(jsonOf[Patch])
-      _ <- validatePatch(patch)
-      updatedRoles <- T(updateRolesInDb(userId, patch.add, patch.remove))
-      result <- liftTask(Ok(updatedRoles.asJson))
+      patch ← bodyAs(jsonOf[Patch])
+      _ ← validatePatch(patch)
+      updatedRoles ← T(updateRolesInDb(userId, patch.add, patch.remove))
+      result ← liftTask(Ok(updatedRoles.asJson))
     } yield (result)
 
   def updateRolesInDb(
     userId: UserId,
     add: List[Role],
-    remove: List[Role]
-  ): F[List[Role]] =
+    remove: List[Role]): F[List[Role]] =
     for {
-      _ <- DB.addRolesForUser(userId, add)
-      _ <- DB.deleteRolesForUser(userId, remove)
-      updatedRoles <- DB.findRolesForUser(userId)
+      _ ← DB.addRolesForUser(userId, add)
+      _ ← DB.deleteRolesForUser(userId, remove)
+      updatedRoles ← DB.findRolesForUser(userId)
     } yield (updatedRoles)
 
   def validatePatch(patch: Patch): WebOp[Unit] =
     if (patch.add.isEmpty && patch.remove.isEmpty)
       sendError(
         UnprocessableEntity(
-          "Patch must contain at least one role to add or remove"
-        )
-      )
+          "Patch must contain at least one role to add or remove"))
     else
       ().pure[WebOp]
 }

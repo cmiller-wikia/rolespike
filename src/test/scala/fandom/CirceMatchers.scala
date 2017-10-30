@@ -21,8 +21,8 @@ trait CirceMatchers {
 
       def typeError(): List[String] = error(right.name + " is not " + left.name)
 
-      def compareScalar[A](f: (Json => Option[A]))(lv: A): List[String] =
-        f(right).map { rv =>
+      def compareScalar[A](f: (Json ⇒ Option[A]))(lv: A): List[String] =
+        f(right).map { rv ⇒
           if (lv == rv)
             List.empty
           else
@@ -33,22 +33,21 @@ trait CirceMatchers {
         if (right.isNull) List.empty else error("is not null")
 
       def compareArray(l: Vector[Json]): List[String] =
-        right.asArray.map(r =>
+        right.asArray.map(r ⇒
           if (l.size != r.size) {
             error("should be length " + l.size + " but is " + r.size)
           } else {
             Stream.from(0).zip(l zip r) // -> Stream[(Int (Json, Json))]
               .foldLeft(List.empty[String])(
-                (errs, item) => errs ++ (item match {
-                  case (idx, (ll, rr)) => _findDifferences(path + "[" + idx + "]/", ll, rr)
-                })
-              )
+                (errs, item) ⇒ errs ++ (item match {
+                  case (idx, (ll, rr)) ⇒ _findDifferences(path + "[" + idx + "]/", ll, rr)
+                }))
           }).getOrElse(typeError)
 
       def compareObject(l: JsonObject): List[String] =
-        right.asObject.map(r =>
+        right.asObject.map(r ⇒
           l.toList.flatMap {
-            case (key, value) => _findDifferences(path + "/" + key, value, r(key).getOrElse(Json.Null))
+            case (key, value) ⇒ _findDifferences(path + "/" + key, value, r(key).getOrElse(Json.Null))
           }).getOrElse(typeError)
 
       left.fold(
@@ -57,20 +56,18 @@ trait CirceMatchers {
         compareScalar(_.asNumber),
         compareScalar(_.asString),
         compareArray,
-        compareObject
-      )
+        compareObject)
     }
 
     _findDifferences("", api, candidate) match {
-      case Nil => Right(candidate)
-      case errs => Left(errs.mkString(", "))
+      case Nil ⇒ Right(candidate)
+      case errs ⇒ Left(errs.mkString(", "))
     }
   }
 
   def validJson(expected: String): ValidatedNel[String, Json] = parse(expected).fold(
     _.message.invalidNel,
-    _.valid
-  )
+    _.valid)
 
   def beJson = ValidationMatchers.validateWith(validJson)
 

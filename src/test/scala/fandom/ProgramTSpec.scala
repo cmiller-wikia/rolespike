@@ -20,13 +20,12 @@ class ProgramTSpec extends FunSuite with Matchers with Discipline {
   implicit def arbProgramT[F[_], I, O: Monoid, E, A: Arbitrary](implicit AO: Arbitrary[O], AEA: Arbitrary[E \/ A], F: Applicative[F]): Arbitrary[ProgramT[F, I, O, E, A]] =
     Arbitrary(
       for {
-        o <- AO.arbitrary
-        ea <- AEA.arbitrary
-      } yield (ProgramT(i => F.pure((o, ea))))
-    )
+        o ← AO.arbitrary
+        ea ← AEA.arbitrary
+      } yield (ProgramT(i ⇒ F.pure((o, ea)))))
 
   implicit def eqTestProgram[A](implicit A: Arbitrary[Int], E: Eq[Eval[(String, String \/ A)]]): Eq[TestProgram[A]] =
-    Eq.by[TestProgram[A], Int => Eval[(String, String \/ A)]] { program => i => program.run(i) }
+    Eq.by[TestProgram[A], Int ⇒ Eval[(String, String \/ A)]] { program ⇒ i ⇒ program.run(i) }
 
   // includes monad tests
   checkAll("ProgramT[Int]", MonadErrorTests[TestProgram, String].monadError[Int, Int, Int])
@@ -39,7 +38,7 @@ class ProgramTSpec extends FunSuite with Matchers with Discipline {
 
   test("writes resume after an error is recovered") {
     val failing = M.tell("One") >> M.raiseError("Fail") >> M.tell("Two")
-    val recovered = M.handleError(failing)(_ => ()) >> M.tell("Three")
+    val recovered = M.handleError(failing)(_ ⇒ ()) >> M.tell("Three")
     recovered.run(10).value shouldBe (("OneThree", Right(())))
   }
 }

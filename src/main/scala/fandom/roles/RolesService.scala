@@ -28,39 +28,36 @@ trait RolesService[F[_]] {
 
   def findRolesForUserPost: WebService =
     for {
-      form <- bodyAs[UrlForm]
+      form ← bodyAs[UrlForm]
       userIds = form.get("userId").map(UserId(_)).toList
       scopes = form.get("scope").map(Scope(_)).toList
-      result <- findRolesForUser(userIds, scopes)
+      result ← findRolesForUser(userIds, scopes)
     } yield (result)
 
   def findRolesForUserGet: WebService =
     for {
-      userIds <- multiParam("userId", UserId(_))
-      scopes <- multiParam("scope", Scope(_))
-      result <- findRolesForUser(userIds, scopes)
+      userIds ← multiParam("userId", UserId(_))
+      scopes ← multiParam("scope", Scope(_))
+      result ← findRolesForUser(userIds, scopes)
     } yield (result)
 
   def findRolesForUser(userIds: List[UserId], scopes: List[Scope]): WebService =
     for {
-      grants <- NonEmptyList.fromList(userIds)
-        .map(ids => T(DB.findGrantsForUsers(ids, scopes)))
+      grants ← NonEmptyList.fromList(userIds)
+        .map(ids ⇒ T(DB.findGrantsForUsers(ids, scopes)))
         .getOrElse(sendError(BadRequest("At least one userId must be specified")))
       groupedRoles = ensureAllUsersPresent(userIds) ++ groupRoles(grants)
-      result <- liftTask(Ok(groupedRoles.asJson))
+      result ← liftTask(Ok(groupedRoles.asJson))
     } yield result
 
   def groupRoles(grants: List[Grant]): Map[String, List[Role]] =
     grants.groupBy(_.userId.value).mapValues(_.map(_.role))
 
   def ensureAllUsersPresent(
-    users: List[UserId]
-  ): Map[String, List[Role]] =
+    users: List[UserId]): Map[String, List[Role]] =
     users.foldLeft(
-      Map.empty[String, List[Role]]
-    )(
-      (roles, uid) => roles + (uid.value -> List.empty)
-    )
+      Map.empty[String, List[Role]])(
+        (roles, uid) ⇒ roles + (uid.value -> List.empty))
 }
 
 object RolesService {

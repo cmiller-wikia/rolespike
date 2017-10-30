@@ -18,16 +18,15 @@ import webtests._
 class RolesServiceSpec extends FreeSpec {
   val defaultState: List[Grant] = fixtures.defaultGrants
 
-  def service(fixtures: List[Grant]): Request => Task[MaybeResponse] =
+  def service(fixtures: List[Grant]): Request ⇒ Task[MaybeResponse] =
     RolesService.service(
       MemoryRoleDb,
-      apitests.stateToWebOp(fixtures)
-    ).apply _
+      apitests.stateToWebOp(fixtures)).apply _
 
   def serve(req: Task[Request])(fixtures: List[Grant]): Task[MaybeResponse] =
     req >>= service(fixtures)
 
-  def bulkQuery(makeRequest: (String, (String, String)*) => Task[Request]): Unit = {
+  def bulkQuery(makeRequest: (String, (String, String)*) ⇒ Task[Request]): Unit = {
     "Should return an error if no users are queried" in {
       serve(makeRequest("/roles", "scope" -> "wiki:831"))(defaultState) should
         respondWithStatus(Status.BadRequest)
@@ -36,26 +35,22 @@ class RolesServiceSpec extends FreeSpec {
     "Should return all roles if a user is queried with no scope filter" in {
       serve(makeRequest(
         "/roles",
-        "userId" -> "harold"
-      ))(defaultState) should respondWithConformingJson(
+        "userId" -> "harold"))(defaultState) should respondWithConformingJson(
         json"""{
          "harold": [
            { "name": "discussions-helper", "scope": "wiki:831" }
          ]
-        }"""
-      )
+        }""")
     }
 
     "Should still return a key if a user is queried but their roles are filtered" in {
       serve(makeRequest(
         "/roles",
         "userId" -> "harold",
-        "scope" -> "global"
-      ))(defaultState) should respondWithConformingJson(
+        "scope" -> "global"))(defaultState) should respondWithConformingJson(
         json"""{
           "harold": []
-        }"""
-      )
+        }""")
     }
 
     "Should filter multiple users/roles some not existing" in {
@@ -66,8 +61,7 @@ class RolesServiceSpec extends FreeSpec {
         "userId" -> "bob",
         "scope" -> "global",
         "scope" -> "wiki:831",
-        "scope" -> "wiki:432"
-      ))(defaultState) should respondWithConformingJson(
+        "scope" -> "wiki:432"))(defaultState) should respondWithConformingJson(
         json"""{
           "harold": [
             { "name": "discussions-helper", "scope": "wiki:831" }
@@ -77,22 +71,19 @@ class RolesServiceSpec extends FreeSpec {
             { "name": "staff", "scope": "global" },
             { "name": "discussions-moderator", "scope": "wiki:831" }
           ]
-        }"""
-      )
+        }""")
     }
   }
 
   "The roles service" - {
     "When querying for bulk role data with GET" - {
       behave like bulkQuery(
-        (path, params) => get(path, params: _*)
-      )
+        (path, params) ⇒ get(path, params: _*))
     }
 
     "When querying for bulk role data with POST" - {
       behave like bulkQuery(
-        (path, params) => post(path, UrlForm(params: _*))
-      )
+        (path, params) ⇒ post(path, UrlForm(params: _*)))
     }
   }
 }

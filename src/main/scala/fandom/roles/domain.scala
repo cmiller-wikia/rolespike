@@ -40,15 +40,15 @@ object codecs {
 
     final def apply(c: HCursor): Decoder.Result[Patch] =
       for {
-        add <- maybeListAt("add")(c)
-        remove <- maybeListAt("remove")(c)
+        add ← maybeListAt("add")(c)
+        remove ← maybeListAt("remove")(c)
       } yield (Patch(add, remove))
   }
 
-  def wrappedStringEncoder[A](extract: A => String) = new Encoder[A] {
+  def wrappedStringEncoder[A](extract: A ⇒ String) = new Encoder[A] {
     def apply(a: A): Json = Json.fromString(extract(a))
   }
-  def wrappedStringDecoder[A](insert: String => A) = new Decoder[A] {
+  def wrappedStringDecoder[A](insert: String ⇒ A) = new Decoder[A] {
     final def apply(c: HCursor): Decoder.Result[A] =
       c.as[String].map(insert)
   }

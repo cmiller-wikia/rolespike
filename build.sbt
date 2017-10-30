@@ -1,3 +1,4 @@
+import scalariform.formatter.preferences._
 
 lazy val AllTests = config("alltests") extend(Test)
 def standaloneTestsFilter(name: String): Boolean = !(name contains "MySql")
@@ -27,5 +28,7 @@ lazy val root = (project in file("."))
     inConfig(AllTests)(Defaults.testTasks),
     testOptions in Test := Seq(Tests.Filter(standaloneTestsFilter)),
     testOptions in AllTests := Seq(Tests.Filter(allTestsFilter)),
-    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
+    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
+		scalariformPreferences := scalariformPreferences.value
+    	.setPreference(RewriteArrowSymbols, true)
   )

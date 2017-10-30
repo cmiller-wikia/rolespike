@@ -19,11 +19,10 @@ import webtests._
 class UserRolesServiceSpec extends FreeSpec {
   val defaultState: List[Grant] = fixtures.defaultGrants
 
-  def service(fixtures: List[Grant]): Request => Task[MaybeResponse] =
+  def service(fixtures: List[Grant]): Request ⇒ Task[MaybeResponse] =
     UserRolesService.service(
       MemoryRoleDb,
-      apitests.stateToWebOp(fixtures)
-    ).apply _
+      apitests.stateToWebOp(fixtures)).apply _
 
   def serve(req: Task[Request])(fixtures: List[Grant]): Task[MaybeResponse] =
     req >>= service(fixtures)
@@ -90,8 +89,7 @@ class UserRolesServiceSpec extends FreeSpec {
         (delete(
           "/roles/users/bob",
           "scope" -> "wiki:831",
-          "scope" -> "global"
-        ) >>= svc).should(respondWithStatus(Status.NoContent))
+          "scope" -> "global") >>= svc).should(respondWithStatus(Status.NoContent))
 
         (get("/roles/users/bob") >>= svc) should
           respondWithConformingJson(json"""[
@@ -104,22 +102,19 @@ class UserRolesServiceSpec extends FreeSpec {
       "should reject badly formed document" in {
         serve(post(
           "/roles/users/bob",
-          json"""{ "add" : [ { "foo": "bar" } ] }"""
-        ))(defaultState) should respondWithStatus(Status.UnprocessableEntity)
+          json"""{ "add" : [ { "foo": "bar" } ] }"""))(defaultState) should respondWithStatus(Status.UnprocessableEntity)
       }
 
       "should reject document with neither adds nor removes" in {
         serve(post(
           "/roles/users/bob",
-          json"""{ }"""
-        ))(defaultState) should respondWithStatus(Status.UnprocessableEntity)
+          json"""{ }"""))(defaultState) should respondWithStatus(Status.UnprocessableEntity)
       }
 
       "should reject document with empty adds and removes" in {
         serve(post(
           "/roles/users/bob",
-          json"""{ "add": [], "remove": [] }"""
-        ))(defaultState) should respondWithStatus(Status.UnprocessableEntity)
+          json"""{ "add": [], "remove": [] }"""))(defaultState) should respondWithStatus(Status.UnprocessableEntity)
       }
 
       "should work just adding roles" in {
@@ -130,14 +125,12 @@ class UserRolesServiceSpec extends FreeSpec {
               { "name": "staff", "scope": "global" },
               { "name": "vstf", "scope": "global" }
             ]
-          }"""
-        ))(defaultState) should respondWithConformingJson(
+          }"""))(defaultState) should respondWithConformingJson(
           json"""[
             { "name": "discussions-helper", "scope": "wiki:831" },
             { "name": "staff", "scope": "global" },
             { "name": "vstf", "scope": "global" }
-          ]"""
-        )
+          ]""")
       }
 
       "should accept adds for nonexistent users" in {
@@ -147,12 +140,10 @@ class UserRolesServiceSpec extends FreeSpec {
             "add": [
               { "name": "vstf", "scope": "global" }
             ]
-          }"""
-        ))(List.empty) should respondWithConformingJson(
+          }"""))(List.empty) should respondWithConformingJson(
           json"""[
             { "name": "vstf", "scope": "global" }
-          ]"""
-        )
+          ]""")
       }
 
       "should accept deletes for nonexistent users" in {
@@ -162,10 +153,8 @@ class UserRolesServiceSpec extends FreeSpec {
             "remove": [
                { "name": "vstf", "scope": "global" }
             ]
-          }"""
-        ))(List.empty) should respondWithConformingJson(
-          json"""[]"""
-        )
+          }"""))(List.empty) should respondWithConformingJson(
+          json"""[]""")
       }
 
       "should accept deletes for nonexistent roles" in {
@@ -175,10 +164,8 @@ class UserRolesServiceSpec extends FreeSpec {
             "remove": [
               { "name": "vstf", "scope": "global" }
             ]
-          }"""
-        ))(defaultState) should respondWithConformingJson(
-          json"""[ { "name": "discussions-helper", "scope": "wiki:831" } ]"""
-        )
+          }"""))(defaultState) should respondWithConformingJson(
+          json"""[ { "name": "discussions-helper", "scope": "wiki:831" } ]""")
       }
 
       "should process adds then deletes" in {
@@ -193,12 +180,10 @@ class UserRolesServiceSpec extends FreeSpec {
               { "name": "staff", "scope": "global" },
               { "name": "discussions-helper", "scope": "wiki:831" }
             ]
-          }"""
-        ))(defaultState) should respondWithConformingJson(
+          }"""))(defaultState) should respondWithConformingJson(
           json"""[
             { "name": "vstf", "scope": "global" }
-          ]"""
-        )
+          ]""")
       }
     }
   }

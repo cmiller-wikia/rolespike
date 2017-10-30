@@ -22,9 +22,8 @@ trait DdlOps {
     def insertFixtures(fixtures: List[Grant]): ConnectionIO[Int] =
       DoobieRoleDb.grantInserter.updateMany(
         fixtures.map {
-          (grant: Grant) => (grant.userId.value, grant.role.name, grant.role.scope.value)
-        }
-      )
+          (grant: Grant) ⇒ (grant.userId.value, grant.role.name, grant.role.scope.value)
+        })
   }
 }
 

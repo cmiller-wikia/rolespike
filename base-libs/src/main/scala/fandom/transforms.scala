@@ -25,6 +25,12 @@ trait TransformOps {
 
   def stateToWebOp[S](initialState: S): State[S, ?] ~> WebOp =
     taskToWebOp compose stateToTask(initialState)
+
+  def idToWebOp: Id ~> WebOp =
+    new (Id ~> WebOp) {
+      def apply[A](a: Id[A]): WebOp[A] = WM.pure(a)
+
+    }
 }
 
 object transforms extends TransformOps

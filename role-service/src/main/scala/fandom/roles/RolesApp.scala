@@ -54,6 +54,7 @@ object RolesApp extends StreamApp with TransientRolesApp {
     keepAliveMemoryDb(
       BlazeBuilder
         .bindHttp(8080, "0.0.0.0")
+        .mountService(healthcheck.HealthCheckService.alwaysHealthy, "/")
         .mountService(userRolesService, "/")
         .mountService(rolesService, "/")
         .serve

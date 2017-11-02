@@ -35,6 +35,16 @@ lazy val base = (project in file("base-libs"))
     name := "non-specific shared code"
   ))
 
+lazy val fandomint = (project in file("fandom-integration"))
+  .configs(AllTests)
+  .settings(DefaultSettings)
+  .settings(
+    Seq(
+      name := "fandom-specific shared code"
+    )
+  )
+  .dependsOn(base % "compile->compile;test->test")
+
 lazy val rolesvc = (project in file("role-service"))
   .configs(AllTests)
   .settings(DefaultSettings)
@@ -47,3 +57,4 @@ lazy val rolesvc = (project in file("role-service"))
     testOptions in AllTests := Seq(Tests.Filter(allTestsFilter))
   )
   .dependsOn(base % "compile->compile;test->test")
+  .dependsOn(fandomint)

@@ -175,7 +175,7 @@ trait RoleDbSpec { this: FreeSpec ⇒
     "when deleting roles for a user" - {
       "does nothing for an empty list" in {
         run(defaultState)(
-          DB.deleteRolesForUser(UserId("harold"), List.empty) >>
+          DB.deleteRolesForUser(UserId("harold"), List.empty) followedBy
             DB.findRolesForUser(UserId("harold"))
         ) shouldBe List(
             Role("discussions-helper", Scope("wiki:831"))
@@ -190,7 +190,7 @@ trait RoleDbSpec { this: FreeSpec ⇒
 
       "does nothing for a role that does not exist" in {
         run(defaultState)(
-          DB.deleteRolesForUser(UserId("bob"), List(Role("foo", Scope("global")))) >>
+          DB.deleteRolesForUser(UserId("bob"), List(Role("foo", Scope("global")))) followedBy
             DB.findRolesForUser(UserId("bob"))
         ) shouldBe List(
             Role("staff", Scope("global")),
@@ -201,7 +201,7 @@ trait RoleDbSpec { this: FreeSpec ⇒
 
       "deletes a single grant that does exist" in {
         run(defaultState)(
-          DB.deleteRolesForUser(UserId("bob"), List(Role("staff", Scope("global")))) >>
+          DB.deleteRolesForUser(UserId("bob"), List(Role("staff", Scope("global")))) followedBy
             DB.findRolesForUser(UserId("bob"))
         ) shouldBe List(
             Role("discussions-moderator", Scope("wiki:831")),
@@ -218,7 +218,7 @@ trait RoleDbSpec { this: FreeSpec ⇒
               Role("discussions-moderator", Scope("wiki:832")),
               Role("discussions-helper", Scope("wiki:832"))
             )
-          ) >>
+          ) followedBy
             DB.findRolesForUser(UserId("bob"))
         ) shouldBe List(
             Role("discussions-moderator", Scope("wiki:831"))
@@ -230,7 +230,7 @@ trait RoleDbSpec { this: FreeSpec ⇒
 
       "does nothing for an empty list" in {
         run(defaultState)(
-          DB.addRolesForUser(UserId("harold"), List.empty) >>
+          DB.addRolesForUser(UserId("harold"), List.empty) followedBy
             DB.findRolesForUser(UserId("harold"))
         ) shouldBe List(
             Role("discussions-helper", Scope("wiki:831"))
@@ -239,10 +239,13 @@ trait RoleDbSpec { this: FreeSpec ⇒
 
       "adds roles for a user that does not exist" in {
         run(defaultState)(
-          DB.addRolesForUser(UserId("greg"), List(
-            Role("foo", Scope("global")),
-            Role("bar", Scope("global"))
-          )) >>
+          DB.addRolesForUser(
+            UserId("greg"),
+            List(
+              Role("foo", Scope("global")),
+              Role("bar", Scope("global"))
+            )
+          ) followedBy
             DB.findRolesForUser(UserId("greg"))
         ) shouldBe List(
             Role("foo", Scope("global")),
@@ -252,10 +255,13 @@ trait RoleDbSpec { this: FreeSpec ⇒
 
       "adds roles for a user that exists" in {
         run(defaultState)(
-          DB.addRolesForUser(UserId("harold"), List(
-            Role("vstf", Scope("global")),
-            Role("discussions-peon", Scope("wiki:831"))
-          )) >>
+          DB.addRolesForUser(
+            UserId("harold"),
+            List(
+              Role("vstf", Scope("global")),
+              Role("discussions-peon", Scope("wiki:831"))
+            )
+          ) followedBy
             DB.findRolesForUser(UserId("harold"))
         ).toList should contain only (
             Role("discussions-helper", Scope("wiki:831")),
@@ -266,9 +272,10 @@ trait RoleDbSpec { this: FreeSpec ⇒
 
       "does nothing for roles that already exist" in {
         run(defaultState)(
-          DB.addRolesForUser(UserId("bob"), List(
-            Role("staff", Scope("global"))
-          )) >>
+          DB.addRolesForUser(
+            UserId("bob"),
+            List(Role("staff", Scope("global")))
+          ) followedBy
             DB.findRolesForUser(UserId("bob"))
         ).toList should contain only (
             Role("staff", Scope("global")),
@@ -279,10 +286,13 @@ trait RoleDbSpec { this: FreeSpec ⇒
 
       "works for a mixture of existing and non-existing roles" in {
         run(defaultState)(
-          DB.addRolesForUser(UserId("bob"), List(
-            Role("staff", Scope("global")),
-            Role("vstf", Scope("global"))
-          )) >>
+          DB.addRolesForUser(
+            UserId("bob"),
+            List(
+              Role("staff", Scope("global")),
+              Role("vstf", Scope("global"))
+            )
+          ) followedBy
             DB.findRolesForUser(UserId("bob"))
         ).toList should contain only (
             Role("staff", Scope("global")),
@@ -309,7 +319,7 @@ class H2DoobieRoleDbSpec extends FreeSpec with RoleDbSpec {
   import doobie.imports._
 
   def setup(initialState: List[Grant]): ConnectionIO[Int] =
-    ddl.grants.createTable.run >> ddl.grants.insertFixtures(initialState)
+    ddl.grants.createTable.run followedBy ddl.grants.insertFixtures(initialState)
 
   "The H2 role db" - {
     behave like roleDb(
@@ -324,8 +334,8 @@ class MySqlRoleDbSpec extends FreeSpec with RoleDbSpec {
   import doobie.imports._
 
   def setup(initialState: List[Grant]): ConnectionIO[Int] =
-    ddl.grants.dropTable.run >>
-      ddl.grants.createTable.run >>
+    ddl.grants.dropTable.run followedBy
+      ddl.grants.createTable.run followedBy
       ddl.grants.insertFixtures(initialState)
 
   "The MySql role db" - {

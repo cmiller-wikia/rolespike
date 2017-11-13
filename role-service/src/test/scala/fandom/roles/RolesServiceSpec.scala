@@ -24,20 +24,20 @@ class RolesServiceSpec extends FreeSpec {
       apitests.stateToWebOp(fixtures)
     ).apply _
 
-  def serve(req: Task[Request])(fixtures: List[Grant]): Task[MaybeResponse] =
+  def serve(fixtures: List[Grant])(req: Task[Request]): Task[MaybeResponse] =
     req >>= service(fixtures)
 
   def bulkQuery(makeRequest: (String, (String, String)*) ⇒ Task[Request]): Unit = {
     "Should return an error if no users are queried" in {
-      serve(makeRequest("/roles", "scope" -> "wiki:831"))(defaultState) should
+      serve(defaultState)(makeRequest("/roles", "scope" -> "wiki:831")) should
         respondWithStatus(Status.BadRequest)
     }
 
     "Should return all roles if a user is queried with no scope filter" in {
-      serve(makeRequest(
+      serve(defaultState)(makeRequest(
         "/roles",
         "userId" -> "harold"
-      ))(defaultState) should respondWithConformingJson(
+      )) should respondWithConformingJson(
         json"""{
          "harold": [
            { "name": "discussions-helper", "scope": "wiki:831" }
@@ -47,11 +47,11 @@ class RolesServiceSpec extends FreeSpec {
     }
 
     "Should still return a key if a user is queried but their roles are filtered" in {
-      serve(makeRequest(
+      serve(defaultState)(makeRequest(
         "/roles",
         "userId" -> "harold",
         "scope" -> "global"
-      ))(defaultState) should respondWithConformingJson(
+      )) should respondWithConformingJson(
         json"""{
           "harold": []
         }"""
@@ -59,7 +59,7 @@ class RolesServiceSpec extends FreeSpec {
     }
 
     "Should filter multiple users/roles some not existing" in {
-      serve(makeRequest(
+      serve(defaultState)(makeRequest(
         "/roles",
         "userId" -> "harold",
         "userId" -> "carol",
@@ -67,7 +67,7 @@ class RolesServiceSpec extends FreeSpec {
         "scope" -> "global",
         "scope" -> "wiki:831",
         "scope" -> "wiki:432"
-      ))(defaultState) should respondWithConformingJson(
+      )) should respondWithConformingJson(
         json"""{
           "harold": [
             { "name": "discussions-helper", "scope": "wiki:831" }
